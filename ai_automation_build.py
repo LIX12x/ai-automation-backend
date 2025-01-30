@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import requests
-import requests
+import os
 
 def deepseek_optimize(api_key, workflow_data):
     headers = {"Authorization": f"Bearer {api_key}"}
@@ -9,7 +9,6 @@ def deepseek_optimize(api_key, workflow_data):
     
     response = requests.post(url, json=payload, headers=headers)
     return response.json()
-
 
 app = Flask(__name__)
 
@@ -61,13 +60,14 @@ def generate_text():
     """Generates text using OpenAI API."""
     data = request.json
     prompt = data.get("prompt")
-    user_api_key = data.get("api_key")
+    user_api_key = os.getenv("OPENAI_API_KEY")
     
-    headers = {"Authorization": f"Bearer os.getenv('OPENAI_API_KEY')"}
-    url = "https://api.openai.com/v1/completions"
+    headers = {"Authorization": f"Bearer {user_api_key}"}
+    url = "https://api.openai.com/v1/chat/completions"
     payload = {
         "model": "gpt-3.5-turbo",
-        "prompt": prompt,
+        "messages": [{"role": "system", "content": "You are a helpful assistant."},
+                      {"role": "user", "content": prompt}],
         "max_tokens": 100
     }
     
@@ -129,3 +129,4 @@ def trigger_webhook():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
