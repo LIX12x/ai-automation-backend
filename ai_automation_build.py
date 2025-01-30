@@ -69,7 +69,13 @@ def scrape_website():
     """Scrapes a given website and extracts text."""
     data = request.json
     url = data.get("url")
-    response = requests.get(url)
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"}
+    
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 403:
+        return jsonify({"error": "Access Denied. This site blocks automated requests."}), 403
+    
     soup = BeautifulSoup(response.text, 'html.parser')
     text = soup.get_text()
     return jsonify({"text": text})
@@ -113,10 +119,6 @@ def generate_text():
     prompt = data.get("prompt")
     user_api_key = data.get("api_key")
     
-    # Ensure the user API key is provided
-    if not user_api_key:
-        return jsonify({"message": "API key is missing"}), 400
-
     headers = {"Authorization": f"Bearer {user_api_key}"}
     url = "https://api.openai.com/v1/chat/completions"
     payload = {
@@ -131,6 +133,7 @@ def generate_text():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
 
 
 
