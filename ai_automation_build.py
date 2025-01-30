@@ -66,7 +66,7 @@ def generate_text():
     headers = {"Authorization": f"Bearer {user_api_key}"}
     url = "https://api.openai.com/v1/completions"
     payload = {
-        "model": "text-davinci-003",
+        "model": "gpt-4-turbo",
         "prompt": prompt,
         "max_tokens": 100
     }
@@ -129,5 +129,6 @@ def trigger_webhook():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
 
 
