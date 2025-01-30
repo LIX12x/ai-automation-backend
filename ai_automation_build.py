@@ -6,10 +6,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import base64
 import json
 import logging
-from werkzeug.security import generate_password_hash, check_password_hash
+from urllib.parse import quote as url_quote, unquote as url_decode, urlencode as url_encode
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_oauthlib.client import OAuth
+from urllib.parse import quote as url_quote, unquote as url_decode, urlencode as url_encode
 
 oauth = OAuth()
 app = Flask(__name__)
@@ -106,6 +107,7 @@ def trigger_webhook():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
 
 
 
