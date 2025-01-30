@@ -113,6 +113,10 @@ def generate_text():
     prompt = data.get("prompt")
     user_api_key = data.get("api_key")
     
+    # Ensure the user API key is provided
+    if not user_api_key:
+        return jsonify({"message": "API key is missing"}), 400
+
     headers = {"Authorization": f"Bearer {user_api_key}"}
     url = "https://api.openai.com/v1/chat/completions"
     payload = {
@@ -127,6 +131,7 @@ def generate_text():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
 
 
 
