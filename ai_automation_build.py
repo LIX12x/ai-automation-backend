@@ -60,7 +60,7 @@ def generate_text():
     """Generates text using OpenAI API."""
     data = request.json
     prompt = data.get("prompt")
-    user_api_key = os.getenv("OPENAI_API_KEY")
+    user_api_key = data.get("api_key")
     
     headers = {"Authorization": f"Bearer {user_api_key}"}
     url = "https://api.openai.com/v1/chat/completions"
@@ -129,4 +129,5 @@ def trigger_webhook():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
 
