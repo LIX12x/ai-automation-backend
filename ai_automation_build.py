@@ -63,7 +63,7 @@ def generate_text():
     prompt = data.get("prompt")
     user_api_key = data.get("api_key")
     
-    headers = {"Authorization": f"Bearer {user_api_key}"}
+    headers = {"Authorization": f"Bearer os.getenv('OPENAI_API_KEY')"}
     url = "https://api.openai.com/v1/completions"
     payload = {
         "model": "gpt-3.5-turbo",
@@ -129,8 +129,3 @@ def trigger_webhook():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-
-
-
-
-
