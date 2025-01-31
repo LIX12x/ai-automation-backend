@@ -52,6 +52,10 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
+@app.route('/')
+def home():
+    return jsonify({"message": "Welcome to the AI Automation API"})
+
 @app.route('/api/oauth/google', methods=['GET'])
 def google_login():
     redirect_uri = url_for('authorized', _external=True)
@@ -106,4 +110,5 @@ def trigger_webhook():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
 
