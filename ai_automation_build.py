@@ -10,6 +10,7 @@ from urllib.parse import quote as url_quote, unquote as url_decode, urlencode as
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from authlib.integrations.flask_client import OAuth
+from werkzeug.security import generate_password_hash, check_password_hash
 
 oauth = OAuth()
 app = Flask(__name__)
@@ -56,11 +57,18 @@ with app.app_context():
 def home():
     return jsonify({"message": "Welcome to the AI Automation API"})
 
+@app.route('/api/routes', methods=['GET'])
+def get_routes():
+    routes = []
+    for rule in app.url_map.iter_rules():
+        routes.append({"endpoint": rule.endpoint, "methods": list(rule.methods), "route": str(rule)})
+    return jsonify({"routes": routes})
+
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
     username = data.get('username')
-    password = data.get('password')
+    password = generate_password_hash(data.get('password'))
     
     if User.query.filter_by(username=username).first():
         return jsonify({"message": "User already exists"}), 400
@@ -77,7 +85,7 @@ def login():
     password = data.get('password')
     
     user = User.query.filter_by(username=username).first()
-    if not user or user.password != password:
+    if not user or not check_password_hash(user.password, password):
         return jsonify({"message": "Invalid credentials"}), 401
     
     access_token = create_access_token(identity=username)
@@ -137,6 +145,7 @@ def trigger_webhook():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
 
 
 
