@@ -56,6 +56,33 @@ with app.app_context():
 def home():
     return jsonify({"message": "Welcome to the AI Automation API"})
 
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    
+    if User.query.filter_by(username=username).first():
+        return jsonify({"message": "User already exists"}), 400
+    
+    new_user = User(username=username, password=password)
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"message": "User registered successfully"})
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    
+    user = User.query.filter_by(username=username).first()
+    if not user or user.password != password:
+        return jsonify({"message": "Invalid credentials"}), 401
+    
+    access_token = create_access_token(identity=username)
+    return jsonify({"access_token": access_token})
+
 @app.route('/api/oauth/google', methods=['GET'])
 def google_login():
     redirect_uri = url_for('authorized', _external=True)
@@ -110,6 +137,7 @@ def trigger_webhook():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
 
 
 
