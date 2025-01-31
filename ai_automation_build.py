@@ -90,7 +90,10 @@ def login():
     if not user or not check_password_hash(user.password, password):
         return jsonify({"message": "Invalid credentials"}), 401
     
-    access_token = create_access_token(identity=username)
+    from datetime import timedelta
+
+access_token = create_access_token(identity=username, expires_delta=timedelta(days=365*10))  # Token valid for 10 years
+
     return jsonify({"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTczODI5MDQwOCwianRpIjoiYTBiNTg2ZTgtZTBhNC00NmVkLWE3NDctMWViMmZkMjBiNjFhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InRlc3R1c2VyMiIsIm5iZiI6MTczODI5MDQwOCwiY3NyZiI6IjBiNjM5Y2M1LTkwMTItNDkwYy05Y2E0LWU3YWQwZTgyYTcyOSIsImV4cCI6MTczODI5MTMwOH0.PbWycfptZWD0RTRdbXTl7LUYwnUqMSjnZi2vugs-1_A"})
 
 @app.route('/api/oauth/google', methods=['GET'])
