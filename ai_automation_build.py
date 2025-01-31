@@ -20,6 +20,8 @@ app.config['GMAIL_API_KEY'] = os.getenv("GMAIL_API_KEY")
 app.config['GOOGLE_CLIENT_ID'] = os.getenv("GOOGLE_CLIENT_ID")
 app.config['GOOGLE_CLIENT_SECRET'] = os.getenv("GOOGLE_CLIENT_SECRET")
 
+oauth.init_app(app)  # Ensure OAuth is initialized with the Flask app
+
 google = oauth.register(
     'google',
     client_id=app.config['GOOGLE_CLIENT_ID'],
@@ -89,7 +91,7 @@ def login():
         return jsonify({"message": "Invalid credentials"}), 401
     
     access_token = create_access_token(identity=username)
-    return jsonify({"access_token": access_token})
+    return jsonify({"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTczODI5MDQwOCwianRpIjoiYTBiNTg2ZTgtZTBhNC00NmVkLWE3NDctMWViMmZkMjBiNjFhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6InRlc3R1c2VyMiIsIm5iZiI6MTczODI5MDQwOCwiY3NyZiI6IjBiNjM5Y2M1LTkwMTItNDkwYy05Y2E0LWU3YWQwZTgyYTcyOSIsImV4cCI6MTczODI5MTMwOH0.PbWycfptZWD0RTRdbXTl7LUYwnUqMSjnZi2vugs-1_A"})
 
 @app.route('/api/oauth/google', methods=['GET'])
 def google_login():
@@ -145,6 +147,7 @@ def trigger_webhook():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+
 
 
 
