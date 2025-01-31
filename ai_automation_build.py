@@ -9,8 +9,7 @@ import logging
 from urllib.parse import quote as url_quote, unquote as url_decode, urlencode as url_encode
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from flask_oauthlib.client import OAuth
-from urllib.parse import quote as url_quote, unquote as url_decode, urlencode as url_encode
+from authlib.integrations.flask_client import OAuth
 
 oauth = OAuth()
 app = Flask(__name__)
@@ -20,16 +19,15 @@ app.config['GMAIL_API_KEY'] = os.getenv("GMAIL_API_KEY")
 app.config['GOOGLE_CLIENT_ID'] = os.getenv("GOOGLE_CLIENT_ID")
 app.config['GOOGLE_CLIENT_SECRET'] = os.getenv("GOOGLE_CLIENT_SECRET")
 
-google = oauth.remote_app(
+google = oauth.register(
     'google',
-    consumer_key=app.config['GOOGLE_CLIENT_ID'],
-    consumer_secret=app.config['GOOGLE_CLIENT_SECRET'],
-    request_token_params={'scope': 'email'},
-    base_url='https://www.googleapis.com/oauth2/v1/',
-    request_token_url=None,
-    access_token_method='POST',
+    client_id=app.config['GOOGLE_CLIENT_ID'],
+    client_secret=app.config['GOOGLE_CLIENT_SECRET'],
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_params={'scope': 'email'},
     access_token_url='https://accounts.google.com/o/oauth2/token',
-    authorize_url='https://accounts.google.com/o/oauth2/auth'
+    access_token_params=None,
+    client_kwargs={'scope': 'email'},
 )
 
 # Configure logging
@@ -56,14 +54,15 @@ with app.app_context():
 
 @app.route('/api/oauth/google', methods=['GET'])
 def google_login():
-    return google.authorize(callback=url_for('authorized', _external=True))
+    redirect_uri = url_for('authorized', _external=True)
+    return google.authorize_redirect(redirect_uri)
 
 @app.route('/api/oauth/google/authorized', methods=['GET'])
 def authorized():
-    response = google.authorized_response()
-    if response is None or response.get('access_token') is None:
+    token = google.authorize_access_token()
+    if not token:
         return jsonify({"message": "OAuth authentication failed"}), 400
-    return jsonify({"access_token": response['access_token']})
+    return jsonify({"access_token": token['access_token']})
 
 @app.route('/api/gmail/send', methods=['POST'])
 @jwt_required()
@@ -107,15 +106,3 @@ def trigger_webhook():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
